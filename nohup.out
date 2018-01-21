@@ -1,0 +1,88 @@
+
+> myapp@0.0.0 start /home/ubuntu/blog
+> supervisor ./bin/www
+
+
+Running node-supervisor with
+  program './bin/www'
+  --watch '.'
+  --extensions 'node,js,/bin/www'
+  --exec 'node'
+
+Starting child process with 'node ./bin/www'
+Watching directory '/home/ubuntu/blog' for changes.
+Press rs for restarting the process.
+Parent process exiting, terminating child...
+
+events.js:72
+        throw er; // Unhandled 'error' event
+              ^
+Error: EBADF, read
+npm ERR! weird error 8
+npm WARN This failure might be due to the use of legacy binary "node"
+npm WARN For further explanations, please read
+/usr/share/doc/nodejs/README.Debian
+ 
+npm ERR! not ok code 0
+
+module.js:340
+    throw err;
+          ^
+Error: Cannot find module '/home/ubuntu/blog/npm'
+    at Function.Module._resolveFilename (module.js:338:15)
+    at Function.Module._load (module.js:280:25)
+    at Function.Module.runMain (module.js:497:10)
+    at startup (node.js:119:16)
+    at node.js:902:3
+
+> myapp@0.0.0 start /home/ubuntu/blog
+> supervisor ./bin/www
+
+
+Running node-supervisor with
+  program './bin/www'
+  --watch '.'
+  --extensions 'node,js,/bin/www'
+  --exec 'node'
+
+Starting child process with 'node ./bin/www'
+Watching directory '/home/ubuntu/blog' for changes.
+Press rs for restarting the process.
+Parent process exiting, terminating child...
+
+events.js:72
+        throw er; // Unhandled 'error' event
+              ^
+Error: EBADF, read
+npm ERR! weird error 8
+npm WARN This failure might be due to the use of legacy binary "node"
+npm WARN For further explanations, please read
+/usr/share/doc/nodejs/README.Debian
+ 
+npm ERR! not ok code 0
+
+> myapp@0.0.0 start /home/ubuntu/blog
+> supervisor ./bin/www
+
+
+Running node-supervisor with
+  program './bin/www'
+  --watch '.'
+  --extensions 'node,js,/bin/www'
+  --exec 'node'
+
+Starting child process with 'node ./bin/www'
+Watching directory '/home/ubuntu/blog' for changes.
+Press rs for restarting the process.
+Parent process exiting, terminating child...
+
+events.js:72
+        throw er; // Unhandled 'error' event
+              ^
+Error: EBADF, read
+npm ERR! weird error 8
+npm WARN This failure might be due to the use of legacy binary "node"
+npm WARN For further explanations, please read
+/usr/share/doc/nodejs/README.Debian
+ 
+npm ERR! not ok code 0
