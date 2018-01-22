@@ -9,13 +9,25 @@
 <body>
 <div class="chat_list_wrap">
     <div class="header">
-        오목 플레이 유저 목록
+        오목 플레이
     </div>
     <div class="search">
         <input type="text" placeholder="유저 이름 검색" />
     </div>
+    <div class="createroom">
+        <button id="make">방 만들기</button>
+        <script>
+        $('#createroom').on('make', function(e){ //2
+          socket.emit('send message', $('#name').val(), $('#message').val());
+          $('#message').val('');
+          $('#message').focus();
+          e.preventDefault();
+        });
+        </script>
+    </div>
     <div class="list">
         <ul>
+          <% for(var i=0; i<length; i++){ %>
             <li>
                 <table cellpadding="0" cellspacing="0">
                     <tr>
@@ -44,34 +56,7 @@
                     </tr>
                 </table>
             </li>
-            <li>
-                <table cellpadding="0" cellspacing="0">
-                    <tr>
-                        <td class="profile_td">
-                            <!--Img-->
-                            <img src="./images/profile_preview.png" />
-                        </td>
-                        <td class="chat_td">
-                            <!--Email & Preview-->
-                            <div class="email">
-                                guest1
-                            </div>
-                            <div class="chat_preview">
-                                안녕하세요~
-                            </div>
-                        </td>
-                        <td class="time_td">
-                            <!--Time & Check-->
-                            <div class="time">
-                                2018.01.21 10:54
-                            </div>
-                            <div class="check">
-
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-            </li>
+          <% } %>
         </ul>
     </div>
 </div>
