@@ -1,56 +1,64 @@
+<!doctype html>
 <html>
-<head>
+  <head>
+    <title>오목 플레이</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial; }
+      form { background: #000; padding: 3px; position: fixed; bottom: 60%; width: 30%; }
+      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+      #messages { list-style-type: none; margin: 0; padding: 0; position: fixed; width: 100%}
+      #messages li { width: 30%; padding: 5px 10px; }
+      #messages li:nth-child(odd) { background: #eee; }
+      img { width: 50%; position:fixed; left:35%;}
+      h1 {font: 10px; position:fixed; top : 45%; left:3%;}
+      #omokinfo { list-style-type: none; margin: 0; padding: 0; position: fixed; right: 5%;}
 
-    <title></title>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+    </style>
 
-</head>
-<body>
+  </head>
+  <body>
+    <ul id="messages"></ul>
+    <img src="../images/omok.jpg"/>
 
-<b>Welcome ROOM : <%= room%></b><p>
-    Name <input type="text" id="nickname" /> <input type="button" id="changename" value="Change name"/><br>
-    To
-    <select id="to">
-        <option value="ALL">ALL</option>
-    </select>
-    Message  <input type="text" id="msgbox"/>
-    <br>
-    <span id="msgs"></span>
+    <h1 class="userinfo">
+      User ID : <input id="user_id">
+    </h1>
 
-    <script type="text/javascript">
-        var socket = io();
-        socket.emit('joinroom',{room:'<%=room%>'});
+    <form action="">
+      <input id="m" autocomplete="off" /><button>Send</button>
+      <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+      <script src="/socket.io/socket.io.js"></script>
+      <script>
+      var userid = prompt("사용할 아이디를 입력하세요", "guest1");
+      $('#user_id').val(userid);
 
-        $('#changename').click(function(){
-            socket.emit('changename',{nickname:$('#nickname').val()});
-        });
-        $("#msgbox").keyup(function(event) {
-            if (event.which == 13) {
-                socket.emit('send_msg',{to:$('#to').val(),msg:$('#msgbox').val()});
-                $('#msgbox').val('');
-            }
-        });
-        socket.on('new',function(data){
-            console.log(data.nickname);
-            $('#nickname').val(data.nickname);
-        });
+      var socket = io();
+      $('form').submit(function(){
+        socket.emit('chat message', userid + ' : ' + $('#m').val());
+        $('#m').val('');
 
-        // 새로운 사용자가 들어오거나, 사용자가 이름을 바꿨을때 "To" 리스트를 변경함
-        socket.on('userlist',function(data){
-            var users = data.users;
-            console.log(users);
-            console.log(data.users.length);
-            $('#to').empty().append('<option value="ALL">ALL</option>');
-            for(var i=0;i<data.users.length;i++){
-                $('#to').append('<option value="'+users[i]+'">'+users[i]+"</option>");
-            }
-        });
+        return false;
+      });
+      socket.on('chat message', function(msg){
+        $('#messages').append($('<li>').text(msg));
+      });
+      </script>
+    </form>
 
-        socket.on('broadcast_msg',function(data){
-            console.log(data.msg);
-            $('#msgs').append(data.msg+'<BR>');
-        });
-    </script>
-</body>
+
+    <ul id="omokinfo">
+      <li>
+        guest1(흑) vs guest2(백)
+      </li>
+      <li>
+        현재 턴
+      </li>
+      <li>
+        <input id="turn" value = "흰색">
+      </li>
+    </ul>
+
+  </body>
 </html>

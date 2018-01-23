@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <title></title>
+    <title>오목 방 설정</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <link rel="stylesheet" href="assets/css/common.css">
@@ -14,20 +14,18 @@
     <div class="search">
         <input type="text" placeholder="유저 이름 검색" />
     </div>
-    <div class="createroom">
-        <button id="make">방 만들기</button>
+    <div>
+
+        <button onclick="moveTo()">방 만들기</button>
         <script>
-        $('#createroom').on('make', function(e){ //2
-          socket.emit('send message', $('#name').val(), $('#message').val());
-          $('#message').val('');
-          $('#message').focus();
-          e.preventDefault();
-        });
+        function moveTo(){
+          location.href = "omok/room";
+        }
         </script>
     </div>
     <div class="list">
         <ul>
-          <% for(var i=0; i<length; i++){ %>
+          <% for(var i=0; i<3; i++){ %>
             <li>
                 <table cellpadding="0" cellspacing="0">
                     <tr>
