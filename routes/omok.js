@@ -5,13 +5,14 @@ var router = express.Router();
 var room = [];
 
 router.get('/', function(req, res, next) {
-  res.render('omokroom', { title: "KDH's Blog" });
+  res.render('omokroom');
 });
 
 router.get('/:roomname', function(req, res, next){
-  res.render('omok');
-})
-
-
+  var roomname = req.params.roomname;
+  res.render('omok', {
+    roomID : roomname
+  });
+});
 
 module.exports = router;

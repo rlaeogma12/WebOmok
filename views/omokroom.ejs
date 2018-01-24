@@ -15,11 +15,11 @@
         <input type="text" placeholder="유저 이름 검색" />
     </div>
     <div>
-
         <button onclick="moveTo()">방 만들기</button>
         <script>
         function moveTo(){
-          location.href = "omok/room";
+          var roomname = prompt("만들 방 이름은?", "GroovyRoom");
+          location.href = "omok/" + roomname;
         }
         </script>
     </div>
