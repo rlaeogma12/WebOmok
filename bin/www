@@ -27,30 +27,39 @@ var server = http.createServer(app);
  */
 var io = require('socket.io')(server);
 
-var inMemoryData = {
-  "socketID" : {
-    lastUsed : "2017-01-01",
-    turn : "black"
-  }
-};
+var SETTINGS = require("../omok/totalSetting.js");
+
+//save Room ID with its status
+var RoomStatus = [];
 
 
 io.on('connection', function(socket){
   console.log('user(' + socket.id + ') connected.');
 
+  //room join
   socket.on('join:room', function(data){
     console.log('user('+socket.id+') joined to ' + data.roomID);
     socket.join(data.roomID);
+    io.sockets.in(data.roomID).emit('new user enter');
+
+    RoomStatus[data.roomID] = {
+        userNumber : 0
+    };
   });
 
-  //broadcast to room
+
+
+  //broadcast to specific room
   socket.on('send:message', function(data){
     io.sockets.in(data.roomID).emit('send:message', data.message);
   });
 
+  //disconnect handle
   socket.on('disconnect', function(){
     console.log('user(' + socket.id + ') disconnected!');
   });
+
+
 
 });
 

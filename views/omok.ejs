@@ -11,16 +11,11 @@
 
 
   <fieldset>
-  User ID : <input type="text" id="userid" readonly/>
+  User ID : <input type="text" id="userid" value = '손님' readonly/>
   <button id='change_id'>아이디 변경</button>
   <br>
   Game Infomation
   <br><br>
-  <label for="select-id">유저 목록</label><br>
-  <select name="userlist" id="userlist" size=2>
-  <option value="A">Guest1</option>
-  <option value="B">Guest2</option>
-  </select>
 
   <br><br>
   유저 수 부족으로 현재 게임이 시작되지 않았습니다.
@@ -38,7 +33,7 @@
   <button id="chat_submit">전송</button>
   </fieldset>
 
-  <img src="../images/omok.jpg">
+  <img id='omokpan' src="../images/omok.jpg"/>
 
   <!-- script part -->
   <script src="http://code.jquery.com/jquery-latest.js"></script>
@@ -47,38 +42,68 @@
   <script src="../assets/js/chat.js"></script>
   -->
   <script>
-  var textlist = 'hello!';
-  var socket = io();
-
-  // Join to room
-  socket.emit('join:room', {roomID: $("#roomName").val()});
-
-  // Send a message
-  $("#chat_submit").click(function() {
-    var msg = $('#chat_msg').val();
-    if(!msg) return;
-    socket.emit('send:message', {
-      roomID: $("#roomName").val(),
-      message: msg
-    });
-    $('#chat_msg').val('');
-  });
-
-  $("#chat_content").val('hello!');
-
-  // Receive a message
-  socket.on('send:message', function(data) {
-    textlist += '\n' + data;
-    $('#chat_content').val(textlist);
-
-  });
 
   $(document).ready(function() {
-
     // Socket.io connection
+    var socket = io();
+    var userID = $('#userid').val();
+
+    // Join to room
+    socket.emit('join:room', {roomID: $("#roomName").val()});
+    $("#chat_content").append("Welcome to " + $("#roomName").val() + "!");
+
+    // Send a message
+    $("#chat_submit").click(function() {
+      var msg = $('#chat_msg').val();
+      if(!msg) return;
+      socket.emit('send:message', {
+        roomID: $("#roomName").val(),
+        message: msg
+      });
+      $('#chat_msg').val('');
+    });
+
+    //by enter
+    $('#chat_msg').keyup(function(e){
+      if(e.keyCode == 13){
+        $("#chat_submit").trigger('click');
+      }
+    });
+
+    //change nickname
+    $('#change_id').click(function(){
+      var newID = prompt('바꿀 아이디를 입력하세요.', '손님2');
+      if(newID){
+        $('#userid').val(newID);
+        userID = newID;
+      }
+    });
+
+    // Receive a message
+    socket.on('send:message', function(data) {
+      $('#chat_content').append('\n' + userID + ' : ' + data);
+      const top = $('#chat_content').prop('scrollHeight');
+      $('#chat_content').scrollTop(top);
+    });
+
+    //new user Enter
+    socket.on('new user enter', function(){
+      $('#chat_content').append('\n' + "새 유저가 입장했습니다.");
+      const top = $('#chat_content').prop('scrollHeight');
+      $('#chat_content').scrollTop(top);
+    });
 
 
 
+
+  });
+
+  //좌표 인식용
+  var omokpan = $('#omokpan');
+  omokpan.click(function(event){
+    var x = event.pageX;
+    var y = event.pageY;
+    alert('x좌표 : ' + x + ' y좌표 : ' + y);
   });
 
   </script>
