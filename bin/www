@@ -29,25 +29,47 @@ var io = require('socket.io')(server);
 
 var SETTINGS = require("../omok/totalSetting.js");
 
-//save Room ID with its status
-var RoomStatus = [];
+//Client쪽에서 Room Data를 가지고 있어야 한다.
 
+//struct Data
+function RoomSpecific(roomID){
+  var RoomID = roomID;
+  var currentUser = "white";
+  var UserNumber = 0;
+}
+
+function RoomList(){
+  var roomList = [];
+}
+//
+
+var socketRoom = {};
 
 io.on('connection', function(socket){
   console.log('user(' + socket.id + ') connected.');
 
-  //room join
-  socket.on('join:room', function(data){
-    console.log('user('+socket.id+') joined to ' + data.roomID);
-    socket.join(data.roomID);
-    io.sockets.in(data.roomID).emit('new user enter');
-
-    RoomStatus[data.roomID] = {
-        userNumber : 0
-    };
+  //requestRandomRoom
+  socket.on('requestRandomRoom', function(data){
+    //is there any empty room?
+    console.log('request Random Room');
+    var rooms = io.sockets.manager.rooms;
+    for(var key in rooms){
+      if(key == ''){
+        continue;
+      }
+      //entered
+      if(rooms[key].length == 1){
+        var roomKey = key.replace('/', '');
+        socket.join(roomKey);
+        io.sockets.in(roomKey).emit('completeMatch', {});
+        socketRoom[socket.id] = roomKey;
+        return;
+      }
+    }
+    //no rooms. just create room and waiting
+    socket.join(socket.id);
+    socketRoom[socket.id] = socket.id;
   });
-
-
 
   //broadcast to specific room
   socket.on('send:message', function(data){
@@ -57,10 +79,14 @@ io.on('connection', function(socket){
   //disconnect handle
   socket.on('disconnect', function(){
     console.log('user(' + socket.id + ') disconnected!');
+    var key = socketRoom[socket.id];
+    socket.leave(key);
+    io.sockets.in(key).emit('disconnect');
+    var clients = io.sockets.clients(key);
+    for(var i=0;i<clients.length;i++){
+      clients[i].leave(key);
+    }
   });
-
-
-
 });
 
 

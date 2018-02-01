@@ -6,24 +6,36 @@
     <!--<link rel="stylesheet" href="assets/css/omok.css">-->
   </head>
   <body>
-  오목 플레이하기!  방 이름 : <input type="text" value = "<%=roomID%>" id="roomName" readonly/>
+  오목 플레이
   <br>
+
 
 
   <fieldset>
   User ID : <input type="text" id="userid" value = '손님' readonly/>
   <button id='change_id'>아이디 변경</button>
-  <br>
-  Game Infomation
-  <br><br>
+  </fieldset>
 
-  <br><br>
-  유저 수 부족으로 현재 게임이 시작되지 않았습니다.
+  <fieldset>
+    Game Infomation
+    <div class="wait container">
+      <br><br>
+      상대방을 기다리고 있습니다.
+    </div>
+
+    <div class="info container">
+      <br>
+      현재 턴 : <input type="text" id="current_Turn" value="흑" readonly/>
+      <br>
+      남은 시간 : <input type="text" id="left_Time" value="10" readonly/>
+    </div>
+
+
 
   </fieldset>
 
 
-
+  <div class="chat container">
   <fieldset>
   <br>
   <textarea id="chat_content" cols="40" rows="8" readonly></textarea>
@@ -32,9 +44,12 @@
   <input type='chat_msg' id="chat_msg">
   <button id="chat_submit">전송</button>
   </fieldset>
+  </div>
 
+
+  <div class="game container">
   <img id='omokpan' src="../images/omok.jpg"/>
-
+  </div>
   <!-- script part -->
   <script src="http://code.jquery.com/jquery-latest.js"></script>
   <script src="/socket.io/socket.io.js"></script>
@@ -48,11 +63,37 @@
     var socket = io();
     var userID = $('#userid').val();
 
+    //Request random Matching
+    $('.wait').show();
+    $('.info').hide();
+    $('.chat').hide();
+    $('.game').hide();
+    socket.emit('requestRandomRoom');
+
+    //Matching Complete
+    socket.on('completeMatch', function(data){
+      console.log('A Room Created! Match Successful.');
+      $('.wait').hide();
+      $('.info').show();
+      $('.chat').show();
+      $('.game').show();
+    });
+
+    // Receive a message
+    socket.on('send:message', function(data) {
+      $('#chat_content').append('\n' + userID + ' : ' + data);
+      const top = $('#chat_content').prop('scrollHeight');
+      $('#chat_content').scrollTop(top);
+    });
+
+
+
+
     // Join to room
     socket.emit('join:room', {roomID: $("#roomName").val()});
-    $("#chat_content").append("Welcome to " + $("#roomName").val() + "!");
+    $("#chat_content").append("Welcome to " + $("#roomName").val() + "! 현재 방 유저 수 : ");
 
-    // Send a message
+    // send a message
     $("#chat_submit").click(function() {
       var msg = $('#chat_msg').val();
       if(!msg) return;
@@ -79,12 +120,7 @@
       }
     });
 
-    // Receive a message
-    socket.on('send:message', function(data) {
-      $('#chat_content').append('\n' + userID + ' : ' + data);
-      const top = $('#chat_content').prop('scrollHeight');
-      $('#chat_content').scrollTop(top);
-    });
+
 
     //new user Enter
     socket.on('new user enter', function(){
@@ -92,9 +128,6 @@
       const top = $('#chat_content').prop('scrollHeight');
       $('#chat_content').scrollTop(top);
     });
-
-
-
 
   });
 
