@@ -3,7 +3,7 @@
   <head>
     <title>오목 플레이</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <!--<link rel="stylesheet" href="assets/css/omok.css">-->
+    <link rel="stylesheet" href="assets/css/omok.css">
   </head>
   <body>
   오목 플레이
@@ -20,7 +20,7 @@
     Game Infomation
     <div class="wait container">
       <br><br>
-      상대방을 기다리고 있습니다.
+      상대방을 기다리고 있습니다..
     </div>
 
     <div class="info container">
@@ -61,6 +61,8 @@
   $(document).ready(function() {
     // Socket.io connection
     var socket = io();
+    socket.emit('requestRandomRoom');
+
     var userID = $('#userid').val();
 
     //Request random Matching
@@ -68,7 +70,7 @@
     $('.info').hide();
     $('.chat').hide();
     $('.game').hide();
-    socket.emit('requestRandomRoom');
+
 
     //Matching Complete
     socket.on('completeMatch', function(data){

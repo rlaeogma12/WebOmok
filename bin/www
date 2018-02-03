@@ -51,8 +51,8 @@ io.on('connection', function(socket){
   //requestRandomRoom
   socket.on('requestRandomRoom', function(data){
     //is there any empty room?
-    console.log('request Random Room');
-    var rooms = io.sockets.manager.rooms;
+    console.log('request Random Room from User');
+    var rooms = io.sockets.adapter.rooms;
     for(var key in rooms){
       if(key == ''){
         continue;
@@ -61,8 +61,8 @@ io.on('connection', function(socket){
       if(rooms[key].length == 1){
         var roomKey = key.replace('/', '');
         socket.join(roomKey);
-        io.sockets.in(roomKey).emit('completeMatch', {});
         socketRoom[socket.id] = roomKey;
+        io.sockets.in(roomKey).emit('completeMatch', {});
         return;
       }
     }
