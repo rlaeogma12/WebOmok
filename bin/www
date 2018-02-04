@@ -53,17 +53,19 @@ io.on('connection', function(socket){
     //is there any empty room?
     console.log('request Random Room from User');
     var rooms = io.sockets.adapter.rooms;
-    for(var key in rooms){
-      if(key == ''){
-        continue;
-      }
-      //entered
-      if(rooms[key].length == 1){
-        var roomKey = key.replace('/', '');
-        socket.join(roomKey);
-        socketRoom[socket.id] = roomKey;
-        io.sockets.in(roomKey).emit('completeMatch', {});
-        return;
+    if(rooms){
+      for(var key in rooms){
+        if(key == ''){
+          continue;
+        }
+        //entered
+        if(rooms[key].length == 1){
+          var roomKey = key.replace('/', '');
+          socket.join(roomKey);
+          socketRoom[socket.id] = roomKey;
+          io.sockets.in(roomKey).emit('completeMatch', {});
+          return;
+        }
       }
     }
     //no rooms. just create room and waiting
