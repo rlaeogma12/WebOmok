@@ -57,55 +57,75 @@
   <script src="../assets/js/chat.js"></script>
   -->
   <script>
+  var connected = false;
+  var userID = $('#userid').val();
+  var room = '';
 
-  $(document).ready(function() {
-    // Socket.io connection
-    var socket = io();
-    socket.emit('requestRandomRoom');
+  function show_game_window(username){
+    $('#userid').val(username);
+    userID = username;
 
-    var userID = $('#userid').val();
+    $('.wait').hide();
+    $('.info').show();
+    $('.chat').show();
+    $('.game').show();
+  }
 
-    //Request random Matching
+  function hide_game_window(){
     $('.wait').show();
     $('.info').hide();
     $('.chat').hide();
     $('.game').hide();
+  }
 
+  $(document).ready(function() {
+    // Socket.io connection
+
+    var socket = io();
+
+    socket.on('connect', function(data){
+      connected = true;
+      //Request random Matching
+      socket.emit('requestRandomRoom');
+      hide_game_window();
+    });
 
     //Matching Complete
     socket.on('completeMatch', function(data){
-      console.log('A Room Created! Match Successful.');
-      $('.wait').hide();
-      $('.info').show();
-      $('.chat').show();
-      $('.game').show();
+      room = data.room;
+      show_game_window(data.username);
+      $("#chat_content").append("플레이어 숫자가 2명이 되었습니다.\n게임을 시작합니다.");
+    });
+
+    //Matching Ended
+    socket.on('endMatch', function(data){
+      hide_game_window();
+      socket.leave(room);
+      room = '';
+    });
+
+    //disconnection
+    socket.on('disconnect', function(data){
+      console.log('Connection Fell');
     });
 
     // Receive a message
-    socket.on('send:message', function(data) {
-      $('#chat_content').append('\n' + userID + ' : ' + data);
+    socket.on('message', function(data) {
+      $('#chat_content').append('\n' + data.userid + ' : ' + data.message);
       const top = $('#chat_content').prop('scrollHeight');
       $('#chat_content').scrollTop(top);
     });
-
-
-
-
-    // Join to room
-    socket.emit('join:room', {roomID: $("#roomName").val()});
-    $("#chat_content").append("Welcome to " + $("#roomName").val() + "! 현재 방 유저 수 : ");
 
     // send a message
     $("#chat_submit").click(function() {
       var msg = $('#chat_msg').val();
       if(!msg) return;
-      socket.emit('send:message', {
-        roomID: $("#roomName").val(),
+      socket.emit('message', {
+        userid : userID,
         message: msg
       });
       $('#chat_msg').val('');
     });
-
     //by enter
     $('#chat_msg').keyup(function(e){
       if(e.keyCode == 13){
@@ -121,16 +141,6 @@
         userID = newID;
       }
     });
-
-
-
-    //new user Enter
-    socket.on('new user enter', function(){
-      $('#chat_content').append('\n' + "새 유저가 입장했습니다.");
-      const top = $('#chat_content').prop('scrollHeight');
-      $('#chat_content').scrollTop(top);
-    });
-
   });
 
   //좌표 인식용
@@ -140,6 +150,7 @@
     var y = event.pageY;
     alert('x좌표 : ' + x + ' y좌표 : ' + y);
   });
+
 
   </script>
 

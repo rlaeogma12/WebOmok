@@ -26,68 +26,66 @@ var server = http.createServer(app);
  * Create socket
  */
 var io = require('socket.io')(server);
-
 var SETTINGS = require("../omok/totalSetting.js");
 
-//Client쪽에서 Room Data를 가지고 있어야 한다.
+
 
 //struct Data
-function RoomSpecific(roomID){
-  var RoomID = roomID;
-  var currentUser = "white";
-  var UserNumber = 0;
-}
-
-function RoomList(){
-  var roomList = [];
-}
-//
-
+var queue = []; //list of sockets waiting for peers
 var socketRoom = {};
+var allUsers = {};
 
+var findPeerForLoneSocket = function(socket){
+  if(queue.length){
+    //someone is in queue, pair them!
+    var peer = queue.pop();
+    var room = socket.id + '#' + peer.id;
+    //join them both
+    peer.join(room);
+    socket.join(room);
+    //register rooms to their names
+    socketRoom[peer.id] = room;
+    socketRoom[socket.id] = room;
+    //let know for each users.
+    peer.emit('completeMatch', {username : "껌정"});
+    socket.emit('completeMatch', {username : "하양색"});
+  }
+  else{
+    //if queue is empty, add our lone socket.
+    queue.push(socket);
+  }
+}
+
+//io message handle
 io.on('connection', function(socket){
   console.log('user(' + socket.id + ') connected.');
 
-  //requestRandomRoom
+  //get request about RandomRoom matching
   socket.on('requestRandomRoom', function(data){
-    //is there any empty room?
     console.log('request Random Room from User');
-    var rooms = io.sockets.adapter.rooms;
-    if(rooms){
-      for(var key in rooms){
-        if(key == ''){
-          continue;
-        }
-        //entered
-        if(rooms[key].length == 1){
-          var roomKey = key.replace('/', '');
-          socket.join(roomKey);
-          socketRoom[socket.id] = roomKey;
-          io.sockets.in(roomKey).emit('completeMatch', {});
-          return;
-        }
-      }
-    }
-    //no rooms. just create room and waiting
-    socket.join(socket.id);
-    socketRoom[socket.id] = socket.id;
+    allUsers[socket.id] = socket;
+    //check if sb is in queue..
+    findPeerForLoneSocket(socket);
   });
 
   //broadcast to specific room
-  socket.on('send:message', function(data){
-    io.sockets.in(data.roomID).emit('send:message', data.message);
+  socket.on('message', function(data){
+    var room = socketRoom[socket.id];
+    io.sockets.to(room).emit('message', {
+      userid : data.userid,
+      message : data.message
+    });
   });
 
   //disconnect handle
   socket.on('disconnect', function(){
     console.log('user(' + socket.id + ') disconnected!');
-    var key = socketRoom[socket.id];
-    socket.leave(key);
-    io.sockets.in(key).emit('disconnect');
-    var clients = io.sockets.clients(key);
-    for(var i=0;i<clients.length;i++){
-      clients[i].leave(key);
-    }
+    var room = rooms[socket.id];
+    socket.broadcast.to(room).emit('endMatch');
+    var peerID = room.split('#');
+    peerID = peerID[0] === socket.id ? peerID[1] : peerID[0];
+    //current socket left, add the other one to the queue.
+    findPeerForLoneSocket(allUsers[peerID]);
   });
 });
 

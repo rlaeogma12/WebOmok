@@ -8,11 +8,8 @@ router.get('/', function(req, res, next) {
   res.render('omokroom');
 });
 
-router.get('/:roomname', function(req, res, next){
-  var roomname = req.params.roomname;
-  res.render('omok', {
-    roomID : roomname
-  });
+router.get('/GameRoom', function(req, res, next){
+  res.render('omok');
 });
 
 module.exports = router;
