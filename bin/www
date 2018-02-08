@@ -34,6 +34,7 @@ var SETTINGS = require("../omok/totalSetting.js");
 var queue = []; //list of sockets waiting for peers
 var socketRoom = {};
 var allUsers = {};
+var RoomStatus = {}; //save Room data
 
 var findPeerForLoneSocket = function(socket){
   if(queue.length){
@@ -46,6 +47,11 @@ var findPeerForLoneSocket = function(socket){
     //register rooms to their names
     socketRoom[peer.id] = room;
     socketRoom[socket.id] = room;
+
+    RoomStatus[room] = {
+      turn : "black"
+    };
+
     //let know for each users.
     peer.emit('completeMatch', {username : "껌정"});
     socket.emit('completeMatch', {username : "하양색"});
