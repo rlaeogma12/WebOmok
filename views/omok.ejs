@@ -47,9 +47,11 @@
   </div>
 
 
-  <div class="game container">
+  <div class="game container" id="stonelocate">
   <img id='omokpan' src="../images/omok.jpg"/>
   </div>
+
+
   <!-- script part -->
   <script src="http://code.jquery.com/jquery-latest.js"></script>
   <script src="/socket.io/socket.io.js"></script>
@@ -143,12 +145,16 @@
     });
   });
 
-  //좌표 인식용
+  //omokpan Using
   var omokpan = $('#omokpan');
+
   omokpan.click(function(event){
     var x = event.pageX;
     var y = event.pageY;
-    alert('x좌표 : ' + x + ' y좌표 : ' + y);
+    //alert('x좌표 : ' + x + ' y좌표 : ' + y);
+    var img = document.createElement('img');
+    img.src = "../images/black.png";
+    document.getElementById('stonelocate').appendChild(img);
   });
 
 
