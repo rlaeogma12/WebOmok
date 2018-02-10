@@ -153,8 +153,16 @@
     var y = event.pageY;
     //alert('x좌표 : ' + x + ' y좌표 : ' + y);
     var img = document.createElement('img');
-    img.src = "../images/black.png";
-    document.getElementById('stonelocate').appendChild(img);
+    img.setAttribute("src", "../images/black.png");
+    img.setAttribute("alt", "Stone");
+
+    img.style.position = "absolute";
+    img.width = 40;
+    img.height = 40;
+    img.style.left = (x-20) + "px";
+    img.style.top = (y-20) + "px";
+
+    document.body.appendChild(img);
   });
 
 
