@@ -48,8 +48,11 @@ var findPeerForLoneSocket = function(socket){
     socketRoom[peer.id] = room;
     socketRoom[socket.id] = room;
 
+    //make roomstatus, default turn set to p1
     RoomStatus[room] = {
-      turn : "black"
+      p1 : socket.id,
+      p2 : peer.id,
+      turn : p1
     };
 
     //let know for each users.
@@ -60,6 +63,10 @@ var findPeerForLoneSocket = function(socket){
     //if queue is empty, add our lone socket.
     queue.push(socket);
   }
+}
+
+var turnOver = function(socket){
+
 }
 
 //io message handle
@@ -81,6 +88,15 @@ io.on('connection', function(socket){
       userid : data.userid,
       message : data.message
     });
+  });
+
+  socket.on('turnover', function(data){
+    if(RoomStatus[data.id].turn == 'black'){
+
+    }
+    else{
+
+    }
   });
 
   //disconnect handle
