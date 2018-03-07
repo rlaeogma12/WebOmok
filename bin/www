@@ -52,12 +52,18 @@ var findPeerForLoneSocket = function(socket){
     RoomStatus[room] = {
       p1 : socket.id,
       p2 : peer.id,
-      turn : p1
+      turn : "black"
     };
 
     //let know for each users.
-    peer.emit('completeMatch', {username : "껌정"});
-    socket.emit('completeMatch', {username : "하양색"});
+    peer.emit('completeMatch', {
+      username : "껌정",
+      usercolor : "검정색 돌"
+    });
+    socket.emit('completeMatch', {
+      username : "하양색",
+      usercolor : "하얀색 돌"
+    });
   }
   else{
     //if queue is empty, add our lone socket.
@@ -90,13 +96,11 @@ io.on('connection', function(socket){
     });
   });
 
-  socket.on('turnover', function(data){
-    if(RoomStatus[data.id].turn == 'black'){
-
-    }
-    else{
-
-    }
+  //if it is your turn or not
+  socket.on('vaildTurn', function(data){
+    console.log("Why Turn not changed");
+    var room = socketRoom[socket.id];
+    io.sockets.to(room).emit('turnChange');
   });
 
   //disconnect handle

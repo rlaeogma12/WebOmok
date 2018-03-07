@@ -28,6 +28,8 @@
       현재 턴 : <input type="text" id="current_Turn" value="흑" readonly/>
       <br>
       남은 시간 : <input type="text" id="left_Time" value="10" readonly/>
+      <br>
+      내 돌의 색깔 : <input type="text" id="my_color" value="흑" readonly/>
     </div>
 
 
@@ -97,6 +99,7 @@
       room = data.room;
       show_game_window(data.username);
       $("#chat_content").append("플레이어 숫자가 2명이 되었습니다.\n게임을 시작합니다.");
+      $("#my_color").val(data.usercolor);
     });
 
     //Matching Ended
@@ -114,6 +117,13 @@
     // Receive a message
     socket.on('message', function(data) {
       $('#chat_content').append('\n' + data.userid + ' : ' + data.message);
+      const top = $('#chat_content').prop('scrollHeight');
+      $('#chat_content').scrollTop(top);
+    });
+
+    //Change Turn
+    socket.on('turnChange', function(data){
+      $('#chat_content').append('\n' + '|턴이 변경되었습니다.|');
       const top = $('#chat_content').prop('scrollHeight');
       $('#chat_content').scrollTop(top);
     });
@@ -149,6 +159,8 @@
   var omokpan = $('#omokpan');
 
   omokpan.click(function(event){
+    socket.emit('vaildTurn');
+    
     var x = event.pageX;
     var y = event.pageY;
     //alert('x좌표 : ' + x + ' y좌표 : ' + y);
@@ -163,6 +175,8 @@
     img.style.top = (y-20) + "px";
 
     document.body.appendChild(img);
+
+
   });
 
 
