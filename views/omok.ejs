@@ -51,6 +51,40 @@
 
   <div class="game container" id="stonelocate">
   <img id='omokpan' src="../images/omok.jpg"/>
+  <table id='omoktable' width='721' height='721' cellspacing='0' border='0' cellpadding='0' style="table-layout:fixed; border-collapse; position:relative; left:7px; bottom:720px;">
+    <script>
+    for(i=0; i<19; i++){
+      document.write("<tr>");
+      for(j=0;j<19;j++){
+        document.write("<td width='37' height='37' id='tableLocation"+(i*19+j)+"'  onclick='setstone("+i+","+j+")'></td>");
+      }
+      document.write("</tr>");
+    }
+
+    tableObj = document.getElementById('omoktable');
+    tableObj_td = tableObj.getElementsByTagName('td');
+
+    for(i=0;i<tableObj_td.length;i++) {
+      tableObj_td[i].onmouseover = function() {
+        this.style.background = "white";
+      }
+      tableObj_td[i].onmouseout = function() {
+        this.style.background = "transparent";
+      }
+    }
+    function setstone(row, col){
+      var img = document.createElement('img');
+      img.setAttribute("src", "../images/black.png");
+      img.setAttribute("alt", "Stone");
+
+      img.style.position = "relative";
+      img.width = 40;
+      img.height = 40;
+
+      tableObj.rows[row].cells[col].appendChild(img);
+    }
+    </script>
+  </table>
   </div>
 
 
@@ -154,32 +188,6 @@
       }
     });
   });
-
-  //omokpan Using
-  var omokpan = $('#omokpan');
-
-  omokpan.click(function(event){
-    socket.emit('vaildTurn');
-    
-    var x = event.pageX;
-    var y = event.pageY;
-    //alert('x좌표 : ' + x + ' y좌표 : ' + y);
-    var img = document.createElement('img');
-    img.setAttribute("src", "../images/black.png");
-    img.setAttribute("alt", "Stone");
-
-    img.style.position = "absolute";
-    img.width = 40;
-    img.height = 40;
-    img.style.left = (x-20) + "px";
-    img.style.top = (y-20) + "px";
-
-    document.body.appendChild(img);
-
-
-  });
-
-
   </script>
 
 
