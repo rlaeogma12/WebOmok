@@ -23,7 +23,7 @@ router.post('/message', (req, res) => {
     type: req.body.type,
     content: req.body.content
   };
-  let message = {
+  var message = {
     "message": {
       "text": "큽?",
       "message_button": {
