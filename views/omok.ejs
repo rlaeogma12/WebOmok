@@ -34,7 +34,7 @@ table td {
 
     <div class="info container">
       <br>
-      현재 턴 : <input type="text" id="current_Turn" value="흑" readonly/>
+      현재 턴 : <input type="text" id="current_Turn" value="검정색" readonly/>
       <br>
       남은 시간 : <input type="text" id="left_Time" value="10" readonly/>
       <br>
@@ -130,9 +130,15 @@ table td {
     });
   }
 
-  function setStone(row, col){
+  function setStone(row, col, color){
     var img = document.createElement('img');
-    img.setAttribute("src", "../images/black.png");
+    if(color == 'black'){
+      img.setAttribute("src", "../images/black.png");
+    }
+    else{
+      img.setAttribute("src", "../images/white.png");
+    }
+
     img.setAttribute("alt", "Stone");
 
     img.style.position = "relative";
@@ -141,6 +147,15 @@ table td {
 
     tableObj = document.getElementById('omoktable');
     tableObj.rows[row].cells[col].appendChild(img);
+  }
+
+function clearMap(){
+    tableObj = document.getElementById('omoktable');
+    for(i=0;i<19;i++){
+      for(j=0;j<19;j++){
+        tableObj.rows[i].cells[j].innerHTML = '';
+      }
+    }
   }
 
   //setting SOCKET-------------------------
@@ -154,18 +169,21 @@ table td {
       //Request random Matching
       socket.emit('requestRandomRoom');
       hide_game_window();
+
     });
 
     //Matching Complete
     socket.on('completeMatch', function(data){
       room = data.room;
+      clearMap();
       show_game_window(data.username);
-      write_text("플레이어 매칭이 완료되었습니다.\n게임을 시작합니다.");
+      write_text("플레이어 매칭이 완료되었습니다.^^\n게임을 시작합니다.");
       $("#my_color").val(data.usercolor);
     });
 
     //Matching Ended
     socket.on('endMatch', function(data){
+      write_text('상대방이 게임에서 나갔습니다. ㅠㅠ \n게임이 중단됩니다.');
       hide_game_window();
       socket.leave(room);
       room = '';
@@ -173,8 +191,7 @@ table td {
 
     //disconnection
     socket.on('disconnect', function(data){
-      write_text('상대방이 게임에서 나갔습니다. \n게임이 중단됩니다.');
-      console.log('Disconnected');
+      //console.log('Disconnected');
     });
 
     // Receive a message
@@ -184,10 +201,29 @@ table td {
 
     //Change Turn
     socket.on('turnChange', function(data){
-      setStone(data.row_index, data.col_index);
-      write_text('턴이 변경됩니다.');
+      setStone(data.row_index, data.col_index, data.color);
+      if(data.color == 'white'){
+        $('#current_Turn').val("검정색");
+      }
+      else{
+        $('#current_Turn').val("흰색");
+      }
+
     });
 
+    //getting specific message from server
+    socket.on('getMessage', function(data){
+      write_text(data.text);
+    });
+
+    //Victory
+    socket.on('victory', function(data){
+      alert('당신은 승리하였습니다! ㅎㅎㅎㅎㅎㅎ');
+    })
+    //Defeat
+    socket.on('defeat', function(data){
+      alert('당신은 패배하였습니다. ㅠㅠㅠㅠㅠㅠ');
+    })
 
     //Clicking j-query events : send a message
     $("#chat_submit").click(function() {

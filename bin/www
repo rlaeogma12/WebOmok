@@ -28,8 +28,6 @@ var server = http.createServer(app);
 var io = require('socket.io')(server);
 var SETTINGS = require("../omok/totalSetting.js");
 
-
-
 //struct Data
 var queue = []; //list of sockets waiting for peers
 var socketRoom = {};
@@ -50,19 +48,20 @@ var findPeerForLoneSocket = function(socket){
 
     //make roomstatus, default turn set to p1
     RoomStatus[room] = {
-      p1 : socket.id,
-      p2 : peer.id,
-      turn : "black"
+      white : socket.id,
+      black : peer.id,
+      turn : socket.id,
+      mapArray : []
     };
 
     //let know for each users.
     peer.emit('completeMatch', {
-      username : "껌정",
-      usercolor : "검정색 돌"
-    });
-    socket.emit('completeMatch', {
       username : "하양색",
       usercolor : "하얀색 돌"
+    });
+    socket.emit('completeMatch', {
+      username : "껌정",
+      usercolor : "검정색 돌"
     });
   }
   else{
@@ -71,7 +70,74 @@ var findPeerForLoneSocket = function(socket){
   }
 }
 
-//io message handle
+//is possible to let stone to specific area?
+function checkVailableStone(id, room, row, col){
+    for(var i=0;i<RoomStatus[room].mapArray.length; i++){
+      if(RoomStatus[room].mapArray[i][0] == row*19 + col){
+        return false;
+      }
+    }
+
+    var Status = [];
+    Status.push(row*19 + col);
+
+    if(RoomStatus[room].white == id){
+      Status.push('black');
+      RoomStatus[room].turn = RoomStatus[room].black;
+    }
+    else{
+      Status.push('white');
+      RoomStatus[room].turn = RoomStatus[room].white;
+    }
+
+    RoomStatus[room].mapArray.push(Status);
+    return true;
+}
+
+//Find Next stone within specific area using Recursive
+//THIS IS SUDOCODE
+/*
+FUCNTION GETNEXT(ROW, COL, COLOR, COUNT, DIRECTION){
+  SWITCH(DIRECTION){
+    CASE 0 :
+    IF(ROW < 18 AND STONE[ROW+1, COL].COLOR == COLOR){
+      GETNEXT(ROW+1, COL, COLOR, COUNT++, 0);
+    }
+    BREAK;
+    CASE 1 :
+    ...
+    CASE 2 :
+
+    CASE 3 :
+
+    CASE 4 :
+
+    CASE 5 :
+
+    CASE 6 :
+
+    CASE 7 :
+    ...
+    BREAK;
+  }
+  RETURN COUNT;
+}
+
+FUNCTION CHKWINNER(){
+  FOR(VAR I=0;I<8;I++){
+    IF(GETNEXT(..., DIRECTION = I) == 5)[
+      WINNER SETTING
+    ]
+  }
+}
+*/
+
+//checking omok winner using algorithm
+function checkWinner(room){
+  return false;
+}
+
+//io message handle----------------
 io.on('connection', function(socket){
   console.log('user(' + socket.id + ') connected.');
 
@@ -94,23 +160,56 @@ io.on('connection', function(socket){
 
   //if it is your turn or not
   socket.on('vaildTurn', function(data){
-    console.log("Why Turn is not changed!! FUCK!!");
     var room = socketRoom[socket.id];
-    io.sockets.to(room).emit('turnChange', {
-      row_index : data.row_index,
-      col_index : data.col_index
-    });
+
+    //if ok
+    if(RoomStatus[room].turn == socket.id){
+      if(checkVailableStone(socket.id, room, data.row_index, data.col_index)){
+        io.sockets.to(room).emit('turnChange', {
+          row_index : data.row_index,
+          col_index : data.col_index,
+          color : RoomStatus[room].turn == RoomStatus[room].white? 'white' : 'black'
+        });
+
+        if(checkWinner(room) == true){
+          //To Do Something.
+        }
+
+        if(RoomStatus[room].turn == RoomStatus[room].white){
+          io.sockets.to(room).emit('getMessage', {
+            text : "흰색 돌의 턴이 끝났습니다."
+          });
+        }
+        else{
+          io.sockets.to(room).emit('getMessage', {
+            text : "검정색 돌의 턴이 끝났습니다."
+          });
+        }
+      }
+      else{
+        io.to(socket.id).emit('getMessage', {
+          text : "그곳에는 둘 수 없습니다."
+        });
+      }
+    }
+    else{
+      io.to(socket.id).emit('getMessage', {
+        text : "당신의 턴이 아닙니다."
+      });
+    }
+
   });
 
   //disconnect handle
   socket.on('disconnect', function(){
     console.log('user(' + socket.id + ') disconnected!');
-    var room = rooms[socket.id];
+    var room = socketRoom[socket.id];
     socket.broadcast.to(room).emit('endMatch');
     var peerID = room.split('#');
     peerID = peerID[0] === socket.id ? peerID[1] : peerID[0];
     //current socket left, add the other one to the queue.
     findPeerForLoneSocket(allUsers[peerID]);
+
   });
 });
 
