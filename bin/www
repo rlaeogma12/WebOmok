@@ -71,10 +71,6 @@ var findPeerForLoneSocket = function(socket){
   }
 }
 
-var turnOver = function(socket){
-
-}
-
 //io message handle
 io.on('connection', function(socket){
   console.log('user(' + socket.id + ') connected.');
@@ -98,9 +94,12 @@ io.on('connection', function(socket){
 
   //if it is your turn or not
   socket.on('vaildTurn', function(data){
-    console.log("Why Turn not changed");
+    console.log("Why Turn is not changed!! FUCK!!");
     var room = socketRoom[socket.id];
-    io.sockets.to(room).emit('turnChange');
+    io.sockets.to(room).emit('turnChange', {
+      row_index : data.row_index,
+      col_index : data.col_index
+    });
   });
 
   //disconnect handle

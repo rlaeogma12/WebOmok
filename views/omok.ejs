@@ -65,7 +65,7 @@ table td {
     for(i=0; i<19; i++){
       document.write("<tr>");
       for(j=0;j<19;j++){
-        document.write("<td width='37' height='37' id='tableLocation"+(i*19+j)+"'  onclick='setstone("+i+","+j+")'></td>");
+        document.write("<td width='37' height='37' id='tableLocation+(i*19+j)'>");
       }
       document.write("</tr>");
     }
@@ -75,22 +75,11 @@ table td {
 
     for(i=0;i<tableObj_td.length;i++) {
       tableObj_td[i].onmouseover = function() {
-        this.style.background = "white";
+        this.style.background = "brown";
       }
       tableObj_td[i].onmouseout = function() {
         this.style.background = "transparent";
       }
-    }
-    function setstone(row, col){
-      var img = document.createElement('img');
-      img.setAttribute("src", "../images/black.png");
-      img.setAttribute("alt", "Stone");
-
-      img.style.position = "relative";
-      img.width = 40;
-      img.height = 40;
-
-      tableObj.rows[row].cells[col].appendChild(img);
     }
     </script>
   </table>
@@ -107,6 +96,8 @@ table td {
   var connected = false;
   var userID = $('#userid').val();
   var room = '';
+
+  $('#chat_content').append('오목 방에 입장하였습니다!');
 
   function show_game_window(username){
     $('#userid').val(username);
@@ -125,6 +116,34 @@ table td {
     $('.game').hide();
   }
 
+  function write_text(string){
+    $('#chat_content').append('\n' + string);
+    const top = $('#chat_content').prop('scrollHeight');
+    $('#chat_content').scrollTop(top);
+  }
+
+  //setting STONE----------
+  function isAvailableLocation(socket, row, col){
+    socket.emit('vaildTurn', {
+      row_index : row,
+      col_index : col
+    });
+  }
+
+  function setStone(row, col){
+    var img = document.createElement('img');
+    img.setAttribute("src", "../images/black.png");
+    img.setAttribute("alt", "Stone");
+
+    img.style.position = "relative";
+    img.width = 40;
+    img.height = 40;
+
+    tableObj = document.getElementById('omoktable');
+    tableObj.rows[row].cells[col].appendChild(img);
+  }
+
+  //setting SOCKET-------------------------
   $(document).ready(function() {
     // Socket.io connection
 
@@ -141,7 +160,7 @@ table td {
     socket.on('completeMatch', function(data){
       room = data.room;
       show_game_window(data.username);
-      $("#chat_content").append("플레이어 숫자가 2명이 되었습니다.\n게임을 시작합니다.");
+      write_text("플레이어 매칭이 완료되었습니다.\n게임을 시작합니다.");
       $("#my_color").val(data.usercolor);
     });
 
@@ -154,24 +173,23 @@ table td {
 
     //disconnection
     socket.on('disconnect', function(data){
-      console.log('Connection Fell');
+      write_text('상대방이 게임에서 나갔습니다. \n게임이 중단됩니다.');
+      console.log('Disconnected');
     });
 
     // Receive a message
     socket.on('message', function(data) {
-      $('#chat_content').append('\n' + data.userid + ' : ' + data.message);
-      const top = $('#chat_content').prop('scrollHeight');
-      $('#chat_content').scrollTop(top);
+      write_text(data.userid + ' : ' + data.message);
     });
 
     //Change Turn
     socket.on('turnChange', function(data){
-      $('#chat_content').append('\n' + '|턴이 변경되었습니다.|');
-      const top = $('#chat_content').prop('scrollHeight');
-      $('#chat_content').scrollTop(top);
+      setStone(data.row_index, data.col_index);
+      write_text('턴이 변경됩니다.');
     });
 
-    // send a message
+
+    //Clicking j-query events : send a message
     $("#chat_submit").click(function() {
       var msg = $('#chat_msg').val();
       if(!msg) return;
@@ -195,6 +213,14 @@ table td {
         $('#userid').val(newID);
         userID = newID;
       }
+    });
+
+    $('td').click(function(){
+      // index는 0부터 시작
+      var index = $('td').index(this);
+      var row = parseInt(index/19);
+      var col = index%19;
+      isAvailableLocation(socket, row, col);
     });
   });
   </script>
