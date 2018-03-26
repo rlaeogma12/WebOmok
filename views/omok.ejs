@@ -208,7 +208,6 @@ function clearMap(){
       else{
         $('#current_Turn').val("흰색");
       }
-
     });
 
     //getting specific message from server
@@ -218,12 +217,17 @@ function clearMap(){
 
     //Victory
     socket.on('victory', function(data){
-      alert('당신은 승리하였습니다! ㅎㅎㅎㅎㅎㅎ');
-    })
+      alert('당신은 승리하였습니다! ^_^');
+      write_text('You Win!');
+      clearMap();
+    });
+
     //Defeat
     socket.on('defeat', function(data){
-      alert('당신은 패배하였습니다. ㅠㅠㅠㅠㅠㅠ');
-    })
+      alert('게임에서 패배했습니다.ㅠ_ㅠ');
+      write_text('You Lose!');
+      clearMap();
+    });
 
     //Clicking j-query events : send a message
     $("#chat_submit").click(function() {
