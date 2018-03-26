@@ -291,11 +291,9 @@ io.on('connection', function(socket){
       peerID = peerID[0] === socket.id ? peerID[1] : peerID[0];
       //current socket left, add the other one to the queue.
       findPeerForLoneSocket(allUsers[peerID]);
-      console.log('room List : ' + room);
     }
     else{
       queue.splice(queue.indexOf(socket.id), 1);
-      console.log(queue);
     }
   });
 });
