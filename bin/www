@@ -285,12 +285,18 @@ io.on('connection', function(socket){
   socket.on('disconnect', function(){
     console.log('user(' + socket.id + ') disconnected!');
     var room = socketRoom[socket.id];
-    socket.broadcast.to(room).emit('endMatch');
-    var peerID = room.split('#');
-    peerID = peerID[0] === socket.id ? peerID[1] : peerID[0];
-    //current socket left, add the other one to the queue.
-    findPeerForLoneSocket(allUsers[peerID]);
-
+    if(room != undefined){
+      socket.broadcast.to(room).emit('endMatch');
+      var peerID = room.split('#');
+      peerID = peerID[0] === socket.id ? peerID[1] : peerID[0];
+      //current socket left, add the other one to the queue.
+      findPeerForLoneSocket(allUsers[peerID]);
+      console.log('room List : ' + room);
+    }
+    else{
+      queue.splice(queue.indexOf(socket.id), 1);
+      console.log(queue);
+    }
   });
 });
 

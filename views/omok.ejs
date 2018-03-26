@@ -185,7 +185,6 @@ function clearMap(){
     socket.on('endMatch', function(data){
       write_text('상대방이 게임에서 나갔습니다. ㅠㅠ \n게임이 중단됩니다.');
       hide_game_window();
-      socket.leave(room);
       room = '';
     });
 
