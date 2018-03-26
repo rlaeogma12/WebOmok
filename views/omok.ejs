@@ -95,7 +95,6 @@ table td {
   <script>
   var connected = false;
   var userID = $('#userid').val();
-  var room = '';
 
   $('#chat_content').append('오목 방에 입장하였습니다!');
 
@@ -174,7 +173,6 @@ function clearMap(){
 
     //Matching Complete
     socket.on('completeMatch', function(data){
-      room = data.room;
       clearMap();
       show_game_window(data.username);
       write_text("플레이어 매칭이 완료되었습니다.^^\n게임을 시작합니다.");
@@ -185,7 +183,6 @@ function clearMap(){
     socket.on('endMatch', function(data){
       write_text('상대방이 게임에서 나갔습니다. ㅠㅠ \n게임이 중단됩니다.');
       hide_game_window();
-      room = '';
     });
 
     //disconnection
